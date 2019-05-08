@@ -1,7 +1,7 @@
 const express = require('express');
 const ejs = require('ejs');
-const path = require('path');
 const multer = require('multer');
+const path = require('path');
 
 //Inicializacion
 const app = express();
@@ -12,20 +12,21 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 //========== Middleware ==========
+const storage = multer.diskStorage({
+    destination: path.join(__dirname,'public/uploads'),
+    filename: (req, file, cb) =>{
+        cb(null, file.originalname);
+    }
+});
+
 app.use(multer({
-    dest: path.join(__dirname,'public/uploads')
+    storage,
+    dest: path.join(__dirname,'public/uploads'),
+    limits: {fileSize: 2000000}
 }).single('image'));
 
 //Routes
-app.get('/', (req, res) => {
-    res.render('index');
-});
-
-app.post('/upload', (req, res) => {
-    console.log(req.file);
-    
-    res.send('Uploaded!');
-});
+app.use(require('./routes/routes'));
 
 //Star the server
 app.listen(app.get('port'), () =>{
